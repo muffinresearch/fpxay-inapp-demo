@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "name": "fxpay-inapp-demo",
+  "description": "Fxpay in-app example app",
+  "launch_path": "/",
+  "installs_allowed_from": ["*"],
+  "type": "web",
+  "developer": {
+    "name": "Stuart Colville",
+    "url": "https://muffinresearch.co.uk"
+  },
+  "icons": {
+    "128": "/img/icons/128.png"
+  }
+}

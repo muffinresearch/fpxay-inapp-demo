@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Fxpay In-app Demo</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+    <style>
+      body {
+        padding: 5%;
+        max-width: 600px;
+        margin: 0 auto;
+        color: #333;
+      }
+      ul {
+        padding: 0;
+      }
+      li {
+        list-style-type: none;
+        padding: 1em;
+        border: 1px solid #eee;
+        margin-top: 1em;
+        border-radius: 0.25em;
+        overflow: hidden;
+      }
+      li:hover {
+        border: 1px solid #ccc;
+      }
+      li em {
+        display: none;
+      }
+      button {
+        float: right;
+      }
+      .purchased {
+        background: #e5ffd5;
+      }
+      .purchased button {
+        display: none;
+      }
+      .purchased em {
+        display: block;
+        text-align: right;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>FxPay Demo</h1>
+    <p class="lead">Just a simple demo of in-app payments including free in-app products.</p>
+    <ul id="products">
+      <li>Loading&hellip;</li>
+    </ul>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/js/lib/fxpay/dist/fxpay.debug.js"></script>
+    <script>
+
+      _.templateSettings = {
+        interpolate: /\{\{(.+?)\}\}/g
+      };
+
+      // PriceMapping for host: marketplace.allizom.org
+      var pricePoints = {
+        "1": "$0.99",
+        "3": "$2.99",
+        "2": "$1.99",
+        "4": "$3.99",
+        "5": "$4.99",
+        "7": "$6.99",
+        "10": "$9.99",
+        "15": "$14.99",
+        "20": "$19.99",
+        "25": "$24.99",
+        "26": "$29.99",
+        "31": "$0.00",
+        "32": "$0.10",
+        "34": "$0.25",
+        "36": "$0.50",
+        "38": "$12.49",
+        "39": "$0.15",
+        "41": "$0.40",
+        "43": "$0.70",
+      };
+
+      var purchaseItems = [];
+      var productTemplate = _.template('<li data-guid="{{ guid }}" class="product {{ name }}">' +
+                                          '<img src="{{ image }}" />' +
+                                          '<h2>{{ name }}</h2>' +
+                                          '<button class="btn btn-default">{{ price }}</button>' +
+                                          '<em>Purchased!</em>' +
+                                        '</li>');
+
+      function onPurchase(guid) {
+        console.log(guid);
+        // The purchase was successful, so update the user's inventory
+        purchasedItems.push(guid);
+        //localStorage.setItem('purchased', JSON.stringify(purchasedItems));
+        $('#products li[data=' + guid + ']').addClass('purchased');
+      }
+
+      fxpay.init({
+        payProviderUrls: {
+          'mozilla/payments/pay/v1':
+            'https://marketplace.firefox.com/mozpay/?req={jwt}',
+          'mozilla-stage/payments/pay/v1':
+            'https://marketplace.allizom.org/mozpay/?req={jwt}'
+        },
+        receiptCheckSites: [
+          'https://receiptcheck.marketplace.firefox.com',
+          'https://marketplace.firefox.com',
+          'https://receiptcheck-marketplace.allizom.org'
+        ],
+        apiUrlBase: 'https://marketplace.allizom.org',
+        onerror: function(error) {
+          console.error('An error occurred:', error);
+        },
+        oninit: function() {
+          console.log('fxpay initialized without errors');
+
+          fxpay.getProducts(function(error, products) {
+            if (error) {
+              return console.error('Error getting products:', error);
+            }
+
+            var $productList = $('#products');
+
+            $productList.empty();
+
+            for (var i=0; i<products.length; i++) {
+              var product = products[i];
+              $productList.append(productTemplate({
+                name: _.escape(product.name),
+                guid: _.escape(product.productId),
+                image: _.escape(product.smallImageUrl),
+                price: pricePoints[product.pricePointId] || 'Buy',
+              }));
+            }
+
+            $productList.on('click', 'button', function() {
+              fxpay.purchase($(this).parent('li').data('guid'), function(error, product) {
+                if (error) {
+                  return console.error(error);
+                }
+                console.log(product.productId, product.name, 'purchased and verified!');
+                onPurchase(product.productId);
+               });
+            });
+          });
+        },
+        onrestore: function(error, product) {
+          // If error is null, product.productId has been
+          // restored from receipt.
+          if (error === null) {
+            console.log('onrestore fired');
+            onPurchase(product.name);
+          } else {
+            console.error('A receipt restoration error occured', error);
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

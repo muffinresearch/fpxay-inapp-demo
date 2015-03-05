@@ -1,0 +1,19 @@
+{
+  "name": "fxpay-inapp-demo",
+  "version": "0.0.1",
+  "homepage": "https://github.com/muffinresearch/fxpay-inapp-demo",
+  "authors": [
+    "Stuart Colville"
+  ],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "fxpay": "0.0.14"
+  }
+}
