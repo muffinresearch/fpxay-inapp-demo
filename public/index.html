@@ -133,7 +133,7 @@
         // The purchase was successful, so update the user's inventory
         purchasedItems.push(guid);
         //localStorage.setItem('purchased', JSON.stringify(purchasedItems));
-        $('#products li[data=' + guid + ']').addClass('purchased');
+        $('#products li[data-guid=' + guid + ']').addClass('purchased');
       }
 
       fxpay.init({
