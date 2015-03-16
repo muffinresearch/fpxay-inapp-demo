@@ -193,7 +193,7 @@
           // restored from receipt.
           if (error === null) {
             console.log('onrestore fired');
-            onPurchase(product.name);
+            onPurchase(product.productId);
           } else {
             console.error('A receipt restoration error occured', error);
           }
