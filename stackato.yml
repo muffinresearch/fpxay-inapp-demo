@@ -4,3 +4,4 @@ framework:
     type: php
     document-root: public
 mem: 128
+disk: 512
