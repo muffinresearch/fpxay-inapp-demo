@@ -9,15 +9,7 @@ module.exports = function(grunt) {
       },
       server: {}
     },
-    'gh-pages': {
-      options: {
-        base: 'public',
-        message: 'Auto-generated commit'
-      },
-      src: ['**']
-    }
   });
   grunt.loadNpmTasks('grunt-devserver');
-  grunt.loadNpmTasks('grunt-gh-pages');
   grunt.registerTask('start', ['devserver']);
 };
